@@ -1,4 +1,5 @@
 console.log("🚀 server.js starting...");
+console.log("🚀 server.js starting...");
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
