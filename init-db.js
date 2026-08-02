@@ -31,34 +31,37 @@ if (!tableCheck) {
 
   const fid = getCat('阵营');
   if (fid) {
-    insertTag.run(fid, '苏联', '#d32f2f', '/images/flags/苏联.png');
-    insertTag.run(fid, '德国', '#1976d2', '/images/flags/德国.png');
-    insertTag.run(fid, '美国', '#388e3c', '/images/flags/美国.png');
-    insertTag.run(fid, '英国', '#f57c00', '/images/flags/英国.png');
-    insertTag.run(fid, '日本', '#c2185b', '/images/flags/日本.png');
-    insertTag.run(fid, '意大利', '#7b1fa2', '/images/flags/意大利.png');
+    insertTag.run(factionId, '苏联', '#d32f2f', '/images/flags/苏联.png');
+    insertTag.run(factionId, '德国', '#1976d2', '/images/flags/德国.png');
+    insertTag.run(factionId, '美国', '#388e3c', '/images/flags/美国.png');
+    insertTag.run(factionId, '英国', '#f57c00', '/images/flags/英国.png');
+    insertTag.run(factionId, '日本', '#c2185b', '/images/flags/日本.png');
+    insertTag.run(factionId, '意大利', '#7b1fa2', '/images/flags/意大利.png');
+    insertTag.run(factionId, '法国', '#0288d1', '/images/flags/法国.png');
+    insertTag.run(factionId, '芬兰', '#388e3c', '/images/flags/芬兰.png');
+    insertTag.run(factionId, '波兰', '#fbc02d', '/images/flags/波兰.png');
   }
 
   const tid = getCat('卡牌类型');
   if (tid) {
-    insertTag.run(tid, '指令', '#0288d1', null);
-    insertTag.run(tid, '步兵', '#00796b', null);
-    insertTag.run(tid, '坦克', '#e64a19', null);
-    insertTag.run(tid, '战斗机', '#fbc02d', null);
-    insertTag.run(tid, '轰炸机', '#5d4037', null);
-    insertTag.run(tid, '炮', '#5d4037', null);
+    insertTag.run(typeId, '指令', '#0288d1', '/images/类型/指令.png');
+    insertTag.run(typeId, '步兵', '#00796b', '/images/类型/步兵.png');
+    insertTag.run(typeId, '坦克', '#e64a19', '/images/类型/坦克.png');
+    insertTag.run(typeId, '战斗机', '#fbc02d', '/images/类型/战斗机.png');
+    insertTag.run(typeId, '轰炸机 ', '#5d4037', '/images/类型/轰炸机.png');
+    insertTag.run(typeId, '炮', '#5d4037', '/images/类型/火炮.png');
   }
 
   const cid = getCat('费用/属性');
   if (cid) {
-    insertTag.run(cid, '0k', '#cc00ff', null);
-    insertTag.run(cid, '1k', '#fffb00', null);
-    insertTag.run(cid, '2k', '#ffffff', null);
-    insertTag.run(cid, '3k', '#d600d6', null);
-    insertTag.run(cid, '4k', '#c7ff86', null);
-    insertTag.run(cid, '5k', '#0099ff', null);
-    insertTag.run(cid, '6k', '#ff2f00', null);
-    insertTag.run(cid, '7k+', '#000000', null);
+    insertTag.run(costId, '0k', '#cc00ff', '/images/费用/0.png');
+    insertTag.run(costId, '1k', '#fffb00', '/images/费用/1.png');
+    insertTag.run(costId, '2k', '#ffffff', '/images/费用/2.png');
+    insertTag.run(costId, '3k', '#d600d6', '/images/费用/3.png');
+    insertTag.run(costId, '4k', '#c7ff86', '/images/费用/4.png');
+    insertTag.run(costId, '5k', '#0099ff', '/images/费用/5.png');
+    insertTag.run(costId, '6k', '#ff2f00', '/images/费用/6.png');
+    insertTag.run(costId, '7k+', '#000000', '/images/费用/7+.png');
   }
 
   const rid = getCat('稀有度');
