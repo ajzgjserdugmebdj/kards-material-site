@@ -52,9 +52,9 @@ app.get('/', (req, res) => {
     allTags: allTags 
   });
 });
-// 务必使用 process.env.PORT，这是 Railway 注入的端口号
-const port = process.env.PORT || 3000; 
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${port}`);
+// ---------- 启动服务器（监听 0.0.0.0） ----------
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 KARDS 素材站运行中: http://0.0.0.0:${PORT}`);
+  console.log(`🔐 后台管理: http://0.0.0.0:${PORT}/admin`);
 });
