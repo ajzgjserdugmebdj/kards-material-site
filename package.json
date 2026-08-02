@@ -4,7 +4,7 @@
   "description": "KARDS 素材管理系统（轻量·Git一体化）",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+  "start": "node database/init.js && node server.js"
     "init-db": "node database/init.js"
   },
   "dependencies": {
