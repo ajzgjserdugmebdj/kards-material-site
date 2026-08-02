@@ -4,8 +4,8 @@
   "description": "KARDS 素材管理系统",
   "main": "server.js",
   "scripts": {
-    "start": "node init-db.js "start": "node server.js""start": "node server.js" node server.js",
-    "init-db": "node database/init.js"
+    "start": "node init-db.js && node server.js",
+    "init-db": "node init-db.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
