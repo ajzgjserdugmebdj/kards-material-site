@@ -53,7 +53,6 @@ app.get('/', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 KARDS 素材站运行中: http://localhost:${PORT}`);
-  console.log(`🔐 后台管理: http://localhost:${PORT}/admin`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 KARDS 素材站运行中: http://0.0.0.0:${PORT}`);
 });
