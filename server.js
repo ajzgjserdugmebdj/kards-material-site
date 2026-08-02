@@ -1,3 +1,20 @@
+// === 自动初始化数据库（如果未初始化） ===
+const initDb = () => {
+  try {
+    const db = require("./controllers/db").getDb();
+    const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type=\"table\" AND name=\"categories\"").get();
+    if (!tableCheck) {
+      console.log("📦 数据库未初始化，正在初始化...");
+      require("./database/init.js");
+    } else {
+      console.log("✅ 数据库已初始化");
+    }
+  } catch (err) {
+    console.error("❌ 数据库初始化失败:", err.message);
+  }
+};
+initDb();
+
 console.log("🚀 server.js starting...");
 console.log("🚀 server.js starting...");
 require('dotenv').config();
