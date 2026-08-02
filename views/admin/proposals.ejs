@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>审核提议 - KARDS</title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    .proposal-item { background: #f9f9f9; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #ffa726; }
+    .proposal-item .info { margin-bottom: 6px; }
+    .proposal-item .actions button { margin-right: 8px; padding: 4px 12px; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-approve { background: #4caf50; color: white; }
+    .btn-reject { background: #f44336; color: white; }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+  <nav class="admin-nav">
+    <h2>📋 审核提议</h2>
+    <div>
+      <a href="/admin/dashboard">仪表盘</a>
+      <a href="/admin/tags">标签管理</a>
+      <a href="/admin/materials">素材管理</a>
+      <a href="/admin/proposals">审核提议</a>
+      <a href="/admin/logout">退出</a>
+    </div>
+  </nav>
+  <div class="admin-content">
+    <h3>待审核提议</h3>
+    <% if (proposals.length === 0) { %>
+      <p>暂无待审核的提议</p>
+    <% } else { %>
+      <% proposals.forEach(p => { %>
+        <div class="proposal-item" data-id="<%= p.id %>">
+          <div class="info">
+            <strong>素材：</strong><%= p.material_name %>（ID: <%= p.material_id %>）<br>
+            <strong>类型：</strong><%= p.type === 'add_tag' ? '添加标签' : '修改名称' %><br>
+            <strong>内容：</strong>
+            <% if (p.type === 'add_tag') { %>
+              <% const tag = allTags.find(t => t.id == p.data); %>
+              <%= tag ? tag.name : '已删除的标签' %>
+            <% } else { %>
+              <%= p.data %>
+            <% } %><br>
+            <strong>提交时间：</strong><%= new Date(p.created_at).toLocaleString() %><br>
+            <strong>IP：</strong><%= p.visitor_ip || '未知' %>
+          </div>
+          <div class="actions">
+            <button class="btn-approve" onclick="approve(<%= p.id %>)">✅ 通过</button>
+            <button class="btn-reject" onclick="reject(<%= p.id %>)">❌ 驳回</button>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+<script>
+  async function approve(id) {
+    if (!confirm('确认通过该提议？操作将立即生效。')) return;
+    const res = await fetch(`/admin/api/proposals/${id}/approve`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) location.reload();
+    else alert('操作失败：' + data.error);
+  }
+  async function reject(id) {
+    if (!confirm('确认驳回该提议？')) return;
+    const res = await fetch(`/admin/api/proposals/${id}/reject`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) location.reload();
+    else alert('操作失败：' + data.error);
+  }
+</script>
+</body>
+</html>

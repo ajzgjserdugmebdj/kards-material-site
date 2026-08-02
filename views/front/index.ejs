@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KARDS 素材库</title>
+  <link rel="stylesheet" href="/css/front.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
+  <style>
+    /* 基础样式 */
+    body { font-family: system-ui; background: #f5f7fa; margin: 0; padding: 20px; }
+    header { max-width: 1400px; margin: 0 auto 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    h1 { margin: 0; background: linear-gradient(135deg,#f093fb,#f5576c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 20px; flex:1; }
+    .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .filter-title { font-weight: 600; font-size: 14px; margin-right: 6px; color: #333; }
+    .filter-group button { padding: 4px 14px; border-radius: 30px; border: 2px solid #ddd; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+    .filter-group button.active { border-color: var(--tag-color, #4a6cf7); background: var(--tag-color, #4a6cf7); color: white; }
+    .btn-uncategorized { padding: 6px 16px; border-radius: 30px; border: 2px dashed #e65100; background: transparent; color: #e65100; cursor: pointer; }
+    #grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 20px; }
+    .grid-item { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.2s; }
+    .grid-item:hover { transform: scale(1.02); }
+    .grid-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+    .item-info { padding: 10px; }
+    .item-name { font-size: 13px; font-weight: 500; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .tag-badge { font-size: 10px; padding: 2px 8px; border-radius: 12px; color: white; display: inline-flex; align-items: center; gap: 4px; }
+    .proposal-btn { margin-top: 6px; padding: 4px 10px; font-size: 12px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+    .proposal-btn:hover { background: #e0e0e0; }
+    /* 模态框样式 */
+    .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 20px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .modal .close { float: right; font-size: 28px; cursor: pointer; }
+    .lightbox { position: fixed; z-index: 999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; }
+    .lightbox img { max-width: 90%; max-height: 80vh; }
+    .lightbox .close { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; }
+    .lightbox a { position: absolute; bottom: 30px; background: #4a6cf7; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; }
+    .empty { text-align: center; padding: 40px; color: #999; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎴 KARDS 素材库</h1>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;width:100%;">
+      <div class="filter-bar" id="filterBar"></div>
+      <button class="btn-uncategorized" id="btnUncategorized">📂 未分类</button>
+      <input type="text" id="searchInput" placeholder="🔍 搜索素材名称或标签..." style="padding:6px 12px;border-radius:20px;border:1px solid #ddd;flex:1;min-width:150px;">
+    </div>
+  </header>
+  <main id="grid"></main>
+  <!-- 灯箱 -->
+  <div id="lightbox" class="lightbox">
+    <span class="close" id="lbClose">&times;</span>
+    <img id="lbImage" src="" alt="预览">
+    <a id="lbDownload" href="#" download>⬇️ 下载原图</a>
+  </div>
+  <!-- 提议模态框 -->
+  <div id="proposalModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeProposalModal()">&times;</span>
+      <h3>✏️ 提议修改</h3>
+      <div id="proposalForm">
+        <input type="hidden" id="proposalMaterialId">
+        <div style="margin-bottom:10px;">
+          <label>操作类型</label>
+          <select id="proposalType">
+            <option value="add_tag">添加标签</option>
+            <option value="rename">修改名称</option>
+          </select>
+        </div>
+        <div id="proposalDataGroup">
+          <label id="proposalDataLabel">标签</label>
+          <select id="proposalTagSelect" style="display:none;width:100%;padding:4px;"></select>
+          <input type="text" id="proposalNewName" placeholder="新名称" style="display:none;padding:4px 8px;border:1px solid #ccc;border-radius:4px;width:100%;">
+        </div>
+        <button id="submitProposalBtn" style="margin-top:10px;background:#1a1a2e;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;">提交提议</button>
+        <div id="proposalResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 注入数据 ==========
+    window._allTags = <%- JSON.stringify(allTags) %>;
+
+    // ========== 全局变量 ==========
+    let activeTags = [];
+    let currentMaterials = [];
+    let allCategories = [];
+    let searchKeyword = '';
+
+    // ========== 筛选器 ==========
+    async function loadFilters() {
+      const res = await fetch('/api/tags');
+      allCategories = await res.json();
+      renderFilters();
+      loadMaterials();
+    }
+
+    function renderFilters() {
+      const bar = document.getElementById('filterBar');
+      if (!bar) return;
+      bar.innerHTML = '';
+      allCategories.forEach(cat => {
+        const group = document.createElement('div');
+        group.className = 'filter-group';
+        const title = document.createElement('span');
+        title.className = 'filter-title';
+        title.textContent = cat.name;
+        group.appendChild(title);
+        cat.tags.forEach(tag => {
+          const btn = document.createElement('button');
+          btn.dataset.id = tag.id;
+          btn.textContent = tag.name;
+          btn.style.setProperty('--tag-color', tag.color || '#6c757d');
+          btn.onclick = () => toggleTag(btn, tag.id);
+          group.appendChild(btn);
+        });
+        bar.appendChild(group);
+      });
+    }
+
+    function toggleTag(btn, tagId) {
+      btn.classList.toggle('active');
+      const idx = activeTags.indexOf(tagId);
+      if (idx > -1) activeTags.splice(idx, 1);
+      else activeTags.push(tagId);
+      loadMaterials();
+    }
+
+    // ========== 素材加载 ==========
+    async function loadMaterials(uncategorized = false) {
+      let url = '/api/materials?';
+      if (uncategorized) url += 'uncategorized=true';
+      else if (activeTags.length > 0) url += `tags=${activeTags.join(',')}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      currentMaterials = data;
+      renderGrid(data);
+    }
+
+    function renderGrid(materials) {
+      const grid = document.getElementById('grid');
+      if (!grid) return;
+      let filtered = materials;
+      if (searchKeyword) {
+        filtered = materials.filter(m => {
+          const nameMatch = (m.original_name || '').toLowerCase().includes(searchKeyword);
+          const tagMatch = (m.tag_names || '').toLowerCase().includes(searchKeyword);
+          return nameMatch || tagMatch;
+        });
+      }
+      if (!filtered.length) {
+        grid.innerHTML = '<p class="empty">没有找到匹配的素材</p>';
+        return;
+      }
+      grid.innerHTML = filtered.map(m => {
+        const tagNames = m.tag_names ? m.tag_names.split(',') : [];
+        const tagColors = m.tag_colors ? m.tag_colors.split(',') : [];
+        const tagIcons = m.tag_icons ? m.tag_icons.split(',') : [];
+        const tagsHtml = tagNames.map((name, i) => {
+          const icon = tagIcons[i] || null;
+          const bgColor = tagColors[i] || '#6c757d';
+          if (icon) {
+            return `<span class="tag-badge" style="background:${bgColor};">
+                      <img src="${icon}" alt="${name}" style="width:16px;height:16px;object-fit:contain;">
+                      ${name}
+                    </span>`;
+          } else {
+            return `<span class="tag-badge" style="background:${bgColor}">${name}</span>`;
+          }
+        }).join('');
+        const thumbPath = `/uploads/thumb_${m.filename}`;
+        return `
+          <div class="grid-item" onclick="openLightbox('/uploads/${m.filename}', '${m.original_name}')">
+            <img src="${thumbPath}" alt="${m.original_name}" loading="lazy">
+            <div class="item-info">
+              <span class="item-name">${m.original_name}</span>
+              <div class="item-tags">${tagsHtml}</div>
+              <!-- 使用 data-material-id，无 onclick -->
+              <button class="proposal-btn" data-material-id="${m.id}">✏️ 提议修改</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ========== 灯箱 ==========
+    function openLightbox(src, name) {
+      const lb = document.getElementById('lightbox');
+      if (!lb) return;
+      document.getElementById('lbImage').src = src;
+      document.getElementById('lbDownload').href = src;
+      document.getElementById('lbDownload').download = name || 'download';
+      lb.style.display = 'flex';
+    }
+    document.getElementById('lbClose')?.addEventListener('click', () => {
+      document.getElementById('lightbox').style.display = 'none';
+    });
+    document.getElementById('lightbox')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+    });
+
+    // ========== 未分类 & 搜索 ==========
+    document.getElementById('btnUncategorized')?.addEventListener('click', () => {
+      activeTags = [];
+      document.querySelectorAll('#filterBar button').forEach(b => b.classList.remove('active'));
+      loadMaterials(true);
+    });
+
+    document.getElementById('searchInput')?.addEventListener('input', function() {
+      searchKeyword = this.value.trim().toLowerCase();
+      loadMaterials();
+    });
+
+    // ========== 提议模态框 ==========
+    function openProposalModal(materialId) {
+      console.log('openProposalModal called with id:', materialId);
+      const modal = document.getElementById('proposalModal');
+      if (!modal) {
+        console.error('proposalModal not found');
+        return;
+      }
+      document.getElementById('proposalMaterialId').value = materialId;
+      const allTags = window._allTags || [];
+      const tagSelect = document.getElementById('proposalTagSelect');
+      if (!tagSelect) {
+        console.error('proposalTagSelect not found');
+        return;
+      }
+      tagSelect.innerHTML = allTags.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      updateProposalForm();
+      document.getElementById('proposalResult').innerHTML = '';
+      modal.style.display = 'block';
+      console.log('Modal should be visible now');
+    }
+
+    function closeProposalModal() {
+      const modal = document.getElementById('proposalModal');
+      if (modal) modal.style.display = 'none';
+    }
+    document.getElementById('proposalModal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeProposalModal();
+    });
+
+    document.getElementById('proposalType')?.addEventListener('change', updateProposalForm);
+    function updateProposalForm() {
+      const type = document.getElementById('proposalType').value;
+      const tagSelect = document.getElementById('proposalTagSelect');
+      const newNameInput = document.getElementById('proposalNewName');
+      const label = document.getElementById('proposalDataLabel');
+      if (type === 'add_tag') {
+        tagSelect.style.display = 'inline-block';
+        newNameInput.style.display = 'none';
+        label.textContent = '选择标签：';
+      } else {
+        tagSelect.style.display = 'none';
+        newNameInput.style.display = 'inline-block';
+        label.textContent = '新名称：';
+      }
+    }
+
+    document.getElementById('submitProposalBtn')?.addEventListener('click', async function() {
+      const materialId = document.getElementById('proposalMaterialId').value;
+      const type = document.getElementById('proposalType').value;
+      let data;
+      if (type === 'add_tag') {
+        data = document.getElementById('proposalTagSelect').value;
+      } else {
+        data = document.getElementById('proposalNewName').value.trim();
+        if (!data) { alert('请输入新名称'); return; }
+      }
+      try {
+        const res = await fetch('/api/proposals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ material_id: materialId, type, data })
+        });
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById('proposalResult').innerHTML = '<p style="color:green;">✅ 提议已提交，等待管理员审核。</p>';
+          setTimeout(closeProposalModal, 2000);
+        } else {
+          document.getElementById('proposalResult').innerHTML = `<p style="color:red;">❌ ${result.error}</p>`;
+        }
+      } catch (err) {
+        document.getElementById('proposalResult').innerHTML = '<p style="color:red;">网络错误，请重试</p>';
+      }
+    });
+
+    // ========== 事件代理：监听所有 .proposal-btn 的点击 ==========
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.proposal-btn');
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.dataset.materialId;
+        if (id) {
+          console.log('点击提议按钮，素材ID:', id);
+          openProposalModal(parseInt(id));
+        } else {
+          console.warn('点击提议按钮，但未找到 data-material-id');
+        }
+      }
+    });
+
+    // ========== 启动 ==========
+    if (document.getElementById('filterBar')) {
+      loadFilters();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台登录 - KARDS</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; font-family: system-ui; margin:0; }
+    .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 360px; }
+    .login-box h1 { margin-top: 0; text-align: center; color: #1a1a2e; }
+    .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    .login-box button { width: 100%; padding: 12px; background: #1a1a2e; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    .error { color: #d32f2f; text-align: center; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>🔐 管理员登录</h1>
+    <% if (error) { %><div class="error"><%= error %></div><% } %>
+    <form method="POST" action="/admin/login">
+      <input type="password" name="password" placeholder="请输入管理员密码" required autofocus>
+      <button type="submit">登录</button>
+    </form>
+  </div>
+</body>
+</html>

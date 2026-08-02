@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>标签管理 - KARDS</title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    .admin-container { max-width: 1400px; margin: 0 auto; padding: 20px; font-family: system-ui; }
+    .admin-nav { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 30px; }
+    .admin-nav a { color: #4a6cf7; text-decoration: none; margin-left: 20px; }
+    .btn-primary { background: #1a1a2e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    .btn-danger { background: #dc3545; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #f8f9fa; }
+    .tag-icon { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; margin-right: 8px; }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+  <nav class="admin-nav">
+    <h2>🏷️ 标签管理</h2>
+    <div>
+      <a href="/admin/dashboard">仪表盘</a>
+      <a href="/admin/tags">标签管理</a>
+      <a href="/admin/materials">素材管理</a>
+      <a href="/admin/logout">退出</a>
+    </div>
+  </nav>
+
+  <div class="admin-content">
+    <h3>📂 标签分类</h3>
+    <div style="margin-bottom:20px;">
+      <input type="text" id="newCategoryName" placeholder="新分类名称">
+      <button onclick="addCategory()" class="btn-primary">添加分类</button>
+    </div>
+    <ul id="categoryList" style="list-style:none;padding:0;">
+      <% categories.forEach(c => { %>
+        <li style="display:flex;justify-content:space-between;padding:8px 12px;background:#f8f9fa;margin-bottom:6px;border-radius:6px;">
+          <span><strong><%= c.name %></strong>（<%= c.tag_count %> 个标签）</span>
+          <button onclick="deleteCategory(<%= c.id %>)" class="btn-danger">删除</button>
+        </li>
+      <% }) %>
+    </ul>
+
+    <hr style="margin:30px 0;">
+
+    <h3>🏷️ 标签列表</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+      <select id="tagCategorySelect">
+        <% categories.forEach(c => { %>
+          <option value="<%= c.id %>"><%= c.name %></option>
+        <% }) %>
+      </select>
+      <input type="text" id="newTagName" placeholder="标签名">
+      <input type="color" id="newTagColor" value="#6c757d">
+      <input type="text" id="newTagIcon" placeholder="图标路径（如 /images/flags/苏联.png）" style="width:200px;">
+      <button onclick="addTag()" class="btn-primary">添加标签</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>分类</th><th>标签名</th><th>图标</th><th>颜色</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <% tags.forEach(t => { %>
+          <tr>
+            <td><%= t.category_name %></td>
+            <td>
+              <% if (t.icon) { %>
+                <img src="<%= t.icon %>" class="tag-icon" alt="<%= t.name %>">
+              <% } %>
+              <%= t.name %>
+            </td>
+            <td><%= t.icon || '无' %></td>
+            <td><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:<%= t.color || '#6c757d' %>;"></span></td>
+            <td><button onclick="deleteTag(<%= t.id %>)" class="btn-danger">删除</button></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // ========== 添加分类 ==========
+  async function addCategory() {
+    const name = document.getElementById('newCategoryName').value.trim();
+    if (!name) return alert('请输入分类名称');
+    const res = await fetch('/admin/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (res.ok) location.reload();
+    else alert('添加失败，可能名称已存在');
+  }
+
+  // ========== 删除分类 ==========
+  async function deleteCategory(id) {
+    if (!confirm('删除分类将同时删除其下所有标签，确定？')) return;
+    await fetch(`/admin/api/categories/${id}`, { method: 'DELETE' });
+    location.reload();
+  }
+
+  // ========== 添加标签 ==========
+  async function addTag() {
+    const category_id = document.getElementById('tagCategorySelect').value;
+    const name = document.getElementById('newTagName').value.trim();
+    const color = document.getElementById('newTagColor').value;
+    const icon = document.getElementById('newTagIcon').value.trim();
+    if (!name) return alert('请输入标签名');
+    const res = await fetch('/admin/api/tags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category_id, name, color, icon: icon || null })
+    });
+    if (res.ok) location.reload();
+    else alert('添加失败，可能标签已存在');
+  }
+
+  // ========== 删除标签 ==========
+  async function deleteTag(id) {
+    if (!confirm('确定删除该标签？')) return;
+    await fetch(`/admin/api/tags/${id}`, { method: 'DELETE' });
+    location.reload();
+  }
+</script>
+</body>
+</html>
