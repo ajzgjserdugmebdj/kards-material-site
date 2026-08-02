@@ -4,7 +4,7 @@
   "description": "KARDS 素材管理系统",
   "main": "server.js",
   "scripts": {
-    "start": "node database/init.js && node server.js",
+    "start": "echo '=== Starting init ===' && node database/init.js && echo '=== Init completed ===' && echo '=== Starting server ===' && node server.js",
     "init-db": "node database/init.js"
   },
   "dependencies": {
