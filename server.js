@@ -2,7 +2,7 @@
 const initDb = () => {
   try {
     const db = require("./controllers/db").getDb();
-    const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type=\"table\" AND name=\"categories\"").get();
+    const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'categories'").get();
     if (!tableCheck) {
       console.log("📦 数据库未初始化，正在初始化...");
       require("./database/init.js");
